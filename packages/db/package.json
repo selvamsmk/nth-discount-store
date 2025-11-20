@@ -1,0 +1,39 @@
+{
+  "name": "@nth-discount-store/db",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./src/index.ts"
+    },
+    "./*": {
+      "types": "./dist/*.d.ts",
+      "default": "./src/*.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsdown",
+    "db:local": "turso dev --db-file local.db",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:seed": "bun ./src/scripts/seed-items.ts"
+  },
+  "devDependencies": {
+    "@faker-js/faker": "^10.1.0",
+    "@nth-discount-store/config": "workspace:*",
+    "drizzle-kit": "^0.31.2",
+    "tsdown": "catalog:"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@libsql/client": "^0.14.0",
+    "dotenv": "catalog:",
+    "drizzle-orm": "catalog:",
+    "drizzle-seed": "catalog:",
+    "zod": "catalog:"
+  }
+}

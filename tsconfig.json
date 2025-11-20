@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "skipLibCheck": true,
+    "noEmit": true,
+    "isolatedModules": true,
+    "types": []              /* optional: prevents automatic inclusion of @types packages */
+  },
+  "exclude": ["node_modules", "dist", "build"]
+}
