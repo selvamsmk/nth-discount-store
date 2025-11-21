@@ -15,7 +15,7 @@
     "build": "tsdown",
     "db:local": "turso dev --db-file local.db",
     "db:push": "drizzle-kit push",
-    "db:studio": "drizzle-kit studio",
+    "db:studio": "drizzle-kit studio --port 3000 --verbose",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:seed": "bun ./src/scripts/seed-items.ts"
