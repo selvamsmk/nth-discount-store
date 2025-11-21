@@ -2,7 +2,12 @@
   "$schema": "https://schema.railpack.com",
   "steps": {
     "install": {
-      "commands": ["bun install --frozen-lockfile"]
+      "commands": [
+        "pwd",
+        "ls -la",
+        "cd /app && ls -la",
+        "cd /app && bun install --frozen-lockfile"
+      ]
     },
     "build": {
       "inputs": [{ "step": "install" }],
