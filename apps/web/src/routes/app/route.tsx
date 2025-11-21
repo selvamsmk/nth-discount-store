@@ -23,7 +23,7 @@ function RouteComponent() {
       <AppSidebar />
       <main className='w-full'>
         <SidebarTrigger />
-        <div className='ml-8'>
+        <div className='ml-8 h-full'>
             <Outlet/>
         </div>
       </main>

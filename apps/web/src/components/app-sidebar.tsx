@@ -1,5 +1,4 @@
-import { Store, ShoppingCart, LogOut } from "lucide-react"
-
+import { Store, ShoppingCart, LogOut, ListOrdered } from "lucide-react"
 import {
   Sidebar,
   SidebarContent,
@@ -23,11 +22,16 @@ const items = [
     url: "/app/store",
     icon: Store,
   },
-    {
+  {
     title: "Cart",
     url: "/app/cart",
     icon: ShoppingCart,
   },
+  {
+    title: "Orders",
+    url: "/app/orders",
+    icon: ListOrdered,
+  }
 ]
 
 export function AppSidebar() {

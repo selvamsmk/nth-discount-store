@@ -8,6 +8,9 @@ export const Route = createFileRoute('/app/store')({
 function RouteComponent() {
   return (
     <div className='h-full'>
+      <div className='mb-4'>
+        <h1 className='text-4xl font-bold'>Store</h1>
+      </div>
       <ItemList/>
     </div>
   )
