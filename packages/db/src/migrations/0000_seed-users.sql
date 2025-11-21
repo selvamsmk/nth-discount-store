@@ -1,4 +1,4 @@
--- Migration: seed items (converted from seed-items.ts)
+-- Custom SQL migration file, put your code below! ---- Migration: seed items (converted from seed-items.ts)
 -- This migration inserts a small set of sample items and records the seed run.
 BEGIN TRANSACTION;
 
