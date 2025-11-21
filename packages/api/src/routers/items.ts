@@ -1,5 +1,5 @@
 import z from "zod";
-import { router, publicProcedure, protectedProcedure } from "../index";
+import { router, protectedProcedure } from "../index";
 import { items } from "@nth-discount-store/db/schema/items";
 import { eq } from "drizzle-orm";
 import { db } from "@nth-discount-store/db";
