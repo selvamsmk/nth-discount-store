@@ -1,7 +1,5 @@
 -- Custom SQL migration file, put your code below! ---- Migration: seed items (converted from seed-items.ts)
 -- This migration inserts a small set of sample items and records the seed run.
-BEGIN TRANSACTION;
-
 CREATE TABLE IF NOT EXISTS seed_runs (
   name TEXT PRIMARY KEY,
   ran_at INTEGER NOT NULL
@@ -32,4 +30,3 @@ INSERT INTO items (name, description, price, sku, created_at) VALUES ('Oriental 
 -- record this seed run
 INSERT INTO seed_runs (name, ran_at) VALUES ('seed_items_v1', (strftime('%s','now') * 1000));
 
-COMMIT;
