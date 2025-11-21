@@ -2,19 +2,18 @@ import React from 'react'
 import { Item, ItemActions, ItemContent, ItemDescription, ItemTitle } from '@/components/ui/item';
 import { Button } from '@/components/ui/button';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { trpc } from '@/utils/trpc';
+import { trpc, queryClient } from '@/utils/trpc';
 import { toast } from 'sonner';
 
-type Props = {}
+type Props = {
+    filterItemsForCart?: boolean
+}
 
 const ItemList = (props: Props) => {
   const items = useQuery(trpc.items.getAll.queryOptions());
   const cartQuery = useQuery(trpc.cart.fetchItemsInCart.queryOptions());
-
   const addToCart = useMutation(trpc.cart.addToCart.mutationOptions());
-
   const removeFromCart = useMutation(trpc.cart.removeFromCart.mutationOptions());
-
   const inCartIds = new Set<number>((cartQuery.data ?? []).map((c: any) => c.itemId))
 
   return (
@@ -42,6 +41,7 @@ const ItemList = (props: Props) => {
                           onSuccess: () => {
                             toast.success(`${item.name} removed from cart`)
                             void cartQuery.refetch()
+                            void queryClient.invalidateQueries(trpc.cart.fetchItemsCount.queryOptions().queryKey as any)
                           },
                           onError: (err: any) => {
                             toast.error(err?.message ?? 'Failed to remove from cart')
@@ -64,6 +64,7 @@ const ItemList = (props: Props) => {
                           onSuccess: () => {
                             toast.success(`${item.name} added to cart`)
                             void cartQuery.refetch()
+                            void queryClient.invalidateQueries(trpc.cart.fetchItemsCount.queryOptions().queryKey as any)
                           },
                           onError: (err: any) => {
                             toast.error(err?.message ?? 'Failed to add to cart')

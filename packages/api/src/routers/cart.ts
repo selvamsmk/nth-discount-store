@@ -88,6 +88,16 @@ export const cartRouter = router({
 
       return { success: true }
     }),
+  fetchItemsCount: protectedProcedure.query(async ({ ctx }) => {
+    const userId = ctx.session.user.id
+    const cartRows = await db.select().from(carts).where(eq(carts.userId, String(userId))).limit(1)
+    const cart = cartRows[0]
+    if (!cart) return { count: 0 }
+
+    const rows = await db.select({ quantity: cartItems.quantity }).from(cartItems).where(eq(cartItems.cartId, cart.id))
+    const count = rows.reduce((sum, r) => sum + (r.quantity ?? 0), 0)
+    return { count }
+  }),
 })
 
 export default cartRouter
