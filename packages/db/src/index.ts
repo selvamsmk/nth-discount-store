@@ -7,4 +7,7 @@ const client = createClient({
 
 export const db = drizzle({ client });
 
+// re-export useful types from schema for consumers (type-only export)
+export type { Item, NewItem } from './schema/items';
+
 

@@ -13,6 +13,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as AppRouteRouteImport } from './routes/app/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppStoreRouteImport } from './routes/app/store'
+import { Route as AppOrdersRouteImport } from './routes/app/orders'
 import { Route as AppCartRouteImport } from './routes/app/cart'
 
 const LoginRoute = LoginRouteImport.update({
@@ -35,6 +36,11 @@ const AppStoreRoute = AppStoreRouteImport.update({
   path: '/store',
   getParentRoute: () => AppRouteRoute,
 } as any)
+const AppOrdersRoute = AppOrdersRouteImport.update({
+  id: '/orders',
+  path: '/orders',
+  getParentRoute: () => AppRouteRoute,
+} as any)
 const AppCartRoute = AppCartRouteImport.update({
   id: '/cart',
   path: '/cart',
@@ -46,6 +52,7 @@ export interface FileRoutesByFullPath {
   '/app': typeof AppRouteRouteWithChildren
   '/login': typeof LoginRoute
   '/app/cart': typeof AppCartRoute
+  '/app/orders': typeof AppOrdersRoute
   '/app/store': typeof AppStoreRoute
 }
 export interface FileRoutesByTo {
@@ -53,6 +60,7 @@ export interface FileRoutesByTo {
   '/app': typeof AppRouteRouteWithChildren
   '/login': typeof LoginRoute
   '/app/cart': typeof AppCartRoute
+  '/app/orders': typeof AppOrdersRoute
   '/app/store': typeof AppStoreRoute
 }
 export interface FileRoutesById {
@@ -61,14 +69,28 @@ export interface FileRoutesById {
   '/app': typeof AppRouteRouteWithChildren
   '/login': typeof LoginRoute
   '/app/cart': typeof AppCartRoute
+  '/app/orders': typeof AppOrdersRoute
   '/app/store': typeof AppStoreRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/app' | '/login' | '/app/cart' | '/app/store'
+  fullPaths:
+    | '/'
+    | '/app'
+    | '/login'
+    | '/app/cart'
+    | '/app/orders'
+    | '/app/store'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/app' | '/login' | '/app/cart' | '/app/store'
-  id: '__root__' | '/' | '/app' | '/login' | '/app/cart' | '/app/store'
+  to: '/' | '/app' | '/login' | '/app/cart' | '/app/orders' | '/app/store'
+  id:
+    | '__root__'
+    | '/'
+    | '/app'
+    | '/login'
+    | '/app/cart'
+    | '/app/orders'
+    | '/app/store'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -107,6 +129,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppStoreRouteImport
       parentRoute: typeof AppRouteRoute
     }
+    '/app/orders': {
+      id: '/app/orders'
+      path: '/orders'
+      fullPath: '/app/orders'
+      preLoaderRoute: typeof AppOrdersRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
     '/app/cart': {
       id: '/app/cart'
       path: '/cart'
@@ -119,11 +148,13 @@ declare module '@tanstack/react-router' {
 
 interface AppRouteRouteChildren {
   AppCartRoute: typeof AppCartRoute
+  AppOrdersRoute: typeof AppOrdersRoute
   AppStoreRoute: typeof AppStoreRoute
 }
 
 const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppCartRoute: AppCartRoute,
+  AppOrdersRoute: AppOrdersRoute,
   AppStoreRoute: AppStoreRoute,
 }
 
