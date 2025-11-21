@@ -32,7 +32,7 @@
     "db:studio": "turbo -F @nth-discount-store/db db:studio",
     "db:generate": "turbo -F @nth-discount-store/db db:generate",
     "db:migrate": "turbo -F @nth-discount-store/db db:migrate",
-    "start": "cd apps/server && bun run start",
+    "start": "bun run release && cd apps/server && bun run start",
     "release": "bun run db:push && bun run db:migrate"
   },
   "engines": {
