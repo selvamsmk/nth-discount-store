@@ -19,10 +19,16 @@ export const queryClient = new QueryClient({
 	}),
 });
 
+// Build the tRPC base URL. If VITE_SERVER_URL is not set (undefined),
+// fall back to a relative '/trpc' path so requests are made to the same origin.
+const rawServerUrl = import.meta.env.VITE_SERVER_URL as string | undefined;
+const serverBase = rawServerUrl ? rawServerUrl.replace(/\/$/, "") : "";
+const trpcUrl = serverBase ? `${serverBase}/trpc` : "/trpc";
+
 export const trpcClient = createTRPCClient<AppRouter>({
 	links: [
 		httpBatchLink({
-			url: `${import.meta.env.VITE_SERVER_URL}/trpc`,
+			url: trpcUrl,
 			fetch(url, options) {
 				return fetch(url, {
 					...options,
