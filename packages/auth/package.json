@@ -2,11 +2,11 @@
   "name": "@nth-discount-store/auth",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
+      "types": "./src/index.ts",
       "default": "./src/index.ts"
     },
     "./*": {
-      "types": "./dist/*.d.ts",
+      "types": "./src/*.ts",
       "default": "./src/*.ts"
     }
   },
@@ -25,6 +25,7 @@
     "better-auth": "catalog:",
     "dotenv": "catalog:",
     "zod": "catalog:",
+    "drizzle-orm": "catalog:",
     "@nth-discount-store/db": "workspace:*"
   }
 }

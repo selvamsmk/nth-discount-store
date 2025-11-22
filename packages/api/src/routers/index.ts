@@ -1,6 +1,8 @@
 import { protectedProcedure, publicProcedure, router } from "../index";
 import { cartRouter } from "./cart";
 import { itemsRouter } from "./items";
+import { settingsRouter } from "./settings";
+import { ordersRouter } from "./orders";
 
 export const appRouter = router({
 	healthCheck: publicProcedure.query(() => {
@@ -13,6 +15,8 @@ export const appRouter = router({
 		};
 	}),
 	items: itemsRouter,
-	cart: cartRouter
+	settings: settingsRouter,
+	orders: ordersRouter,
+	cart: cartRouter,
 });
 export type AppRouter = typeof appRouter;

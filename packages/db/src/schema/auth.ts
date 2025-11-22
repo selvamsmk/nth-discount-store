@@ -5,6 +5,8 @@ export const user = sqliteTable("user", {
 	name: text("name").notNull(),
 	email: text("email").notNull().unique(),
 	emailVerified: integer("email_verified", { mode: "boolean" }).notNull(),
+	// admin flag for privileged users (true/false)
+	admin: integer("admin", { mode: "boolean" }).default(false).notNull(),
 	image: text("image"),
 	createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
 	updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),

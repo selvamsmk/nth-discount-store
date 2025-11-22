@@ -1,7 +1,7 @@
 import ItemList from '@/components/item-list';
 import { Separator } from '@/components/ui/separator';
-import { trpc } from '@/utils/trpc';
-import { useQuery } from '@tanstack/react-query';
+import { queryClient, trpc } from '@/utils/trpc';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import React, { useState } from 'react';
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { Button } from '@/components/ui/button';
@@ -23,6 +23,7 @@ export const Route = createFileRoute('/app/cart')({
 
 function RouteComponent() {
   const cartQuery = useQuery(trpc.cart.fetchItemsInCart.queryOptions());
+  const orderCreate = useMutation(trpc.orders.create.mutationOptions());
 
   const items = cartQuery.data ?? [];
   const subtotalCents = items.reduce((sum: number, it: any) => sum + ((it.price ?? 0) * (it.quantity ?? 1)), 0);
@@ -68,11 +69,19 @@ function RouteComponent() {
   const navigate = useNavigate();
 
   const handlePlaceOrder = () => {
-    // In real app: call orders.create mutation with cart, paymentMethod, etc.
-  toast.success('Order placed successfully');
-  setOrderDialogOpen(false);
-  // Optionally: clear cart — not implemented in this demo.
-  navigate({ to: "/app/orders" });
+    // Call server to create order from cart; server clears the cart.
+    orderCreate.mutate(undefined, {
+      onSuccess: () => {
+        toast.success('Order placed successfully');
+        setOrderDialogOpen(false);
+        void cartQuery.refetch();
+        void queryClient.invalidateQueries(trpc.cart.fetchItemsCount.queryOptions().queryKey as any);
+        navigate({ to: '/app/orders' });
+      },
+      onError: (err: any) => {
+        toast.error(err?.message ?? 'Failed to place order');
+      },
+    })
   }
 
   return (
