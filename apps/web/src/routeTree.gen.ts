@@ -16,6 +16,7 @@ import { Route as AppStoreRouteImport } from './routes/app/store'
 import { Route as AppSettingsRouteImport } from './routes/app/settings'
 import { Route as AppOrdersRouteImport } from './routes/app/orders'
 import { Route as AppCartRouteImport } from './routes/app/cart'
+import { Route as AppAdminRouteImport } from './routes/app/admin'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -52,11 +53,17 @@ const AppCartRoute = AppCartRouteImport.update({
   path: '/cart',
   getParentRoute: () => AppRouteRoute,
 } as any)
+const AppAdminRoute = AppAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AppRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/app': typeof AppRouteRouteWithChildren
   '/login': typeof LoginRoute
+  '/app/admin': typeof AppAdminRoute
   '/app/cart': typeof AppCartRoute
   '/app/orders': typeof AppOrdersRoute
   '/app/settings': typeof AppSettingsRoute
@@ -66,6 +73,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/app': typeof AppRouteRouteWithChildren
   '/login': typeof LoginRoute
+  '/app/admin': typeof AppAdminRoute
   '/app/cart': typeof AppCartRoute
   '/app/orders': typeof AppOrdersRoute
   '/app/settings': typeof AppSettingsRoute
@@ -76,6 +84,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/app': typeof AppRouteRouteWithChildren
   '/login': typeof LoginRoute
+  '/app/admin': typeof AppAdminRoute
   '/app/cart': typeof AppCartRoute
   '/app/orders': typeof AppOrdersRoute
   '/app/settings': typeof AppSettingsRoute
@@ -87,6 +96,7 @@ export interface FileRouteTypes {
     | '/'
     | '/app'
     | '/login'
+    | '/app/admin'
     | '/app/cart'
     | '/app/orders'
     | '/app/settings'
@@ -96,6 +106,7 @@ export interface FileRouteTypes {
     | '/'
     | '/app'
     | '/login'
+    | '/app/admin'
     | '/app/cart'
     | '/app/orders'
     | '/app/settings'
@@ -105,6 +116,7 @@ export interface FileRouteTypes {
     | '/'
     | '/app'
     | '/login'
+    | '/app/admin'
     | '/app/cart'
     | '/app/orders'
     | '/app/settings'
@@ -168,10 +180,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppCartRouteImport
       parentRoute: typeof AppRouteRoute
     }
+    '/app/admin': {
+      id: '/app/admin'
+      path: '/admin'
+      fullPath: '/app/admin'
+      preLoaderRoute: typeof AppAdminRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
   }
 }
 
 interface AppRouteRouteChildren {
+  AppAdminRoute: typeof AppAdminRoute
   AppCartRoute: typeof AppCartRoute
   AppOrdersRoute: typeof AppOrdersRoute
   AppSettingsRoute: typeof AppSettingsRoute
@@ -179,6 +199,7 @@ interface AppRouteRouteChildren {
 }
 
 const AppRouteRouteChildren: AppRouteRouteChildren = {
+  AppAdminRoute: AppAdminRoute,
   AppCartRoute: AppCartRoute,
   AppOrdersRoute: AppOrdersRoute,
   AppSettingsRoute: AppSettingsRoute,

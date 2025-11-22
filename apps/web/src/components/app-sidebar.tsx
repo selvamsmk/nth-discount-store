@@ -1,4 +1,5 @@
 import { Store, ShoppingCart, LogOut, ListOrdered, Settings } from "lucide-react"
+import { ShieldCheck } from 'lucide-react'
 import {
   Sidebar,
   SidebarContent,
@@ -75,6 +76,17 @@ export function AppSidebar() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
+
+              {session?.user?.admin ? (
+                <SidebarMenuItem key={'admin'}>
+                  <SidebarMenuButton asChild>
+                    <Link to={'/app/admin'} className='flex items-center gap-2'>
+                      <ShieldCheck />
+                      <span>Admin</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ) : null}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
