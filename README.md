@@ -85,6 +85,16 @@ https://nth-discount-store-production.up.railway.app/
 
 Use this URL to inspect the running demo and verify behavior without running locally.
 
+Demo admin credentials
+---------------------
+
+You can use the following admin account on the deployed instance to access the admin/settings UI:
+
+- Email: admin2@gmail.com
+- Password: admin123
+
+Once signed in as the admin, open the Settings tab to update the `n_value` used by the server to decide when to generate the one-time coupon (every Nth order).
+
 ## Project Structure
 
 ```

@@ -24,14 +24,14 @@ export const Route = createFileRoute('/app/cart')({
 function RouteComponent() {
   const cartQuery = useQuery(trpc.cart.fetchItemsInCart.queryOptions());
   const orderCreate = useMutation(trpc.orders.create.mutationOptions());
+  const [generatedCoupon, setGeneratedCoupon] = useState<any | null>(null);
 
   const items = cartQuery.data ?? [];
   const subtotalCents = items.reduce((sum: number, it: any) => sum + ((it.price ?? 0) * (it.quantity ?? 1)), 0);
   const [discountCode, setDiscountCode] = useState('');
   const [discountPercent, setDiscountPercent] = useState(0);
   const [appliedCode, setAppliedCode] = useState<string | null>(null);
-
-  const VALID_DISCOUNT_CODES = new Set(['SAVE10', 'TENOFF']);
+  const validateCoupon = useMutation(trpc.coupons.validate.mutationOptions());
 
   const handleApplyDiscount = () => {
     const code = (discountCode ?? '').trim().toUpperCase();
@@ -39,13 +39,19 @@ function RouteComponent() {
       toast.error('Please enter a discount code');
       return;
     }
-    if (VALID_DISCOUNT_CODES.has(code)) {
-      setDiscountPercent(10);
-      setAppliedCode(code);
-      toast.success('Discount applied — 10% off');
-    } else {
-      toast.error('Invalid discount code');
-    }
+    validateCoupon.mutate(
+      { code },
+      {
+        onSuccess: (res: any) => {
+          setDiscountPercent(res.percent ?? 0)
+          setAppliedCode(code)
+          toast.success(`Discount applied — ${res.percent}% off`)
+        },
+        onError: (err: any) => {
+          toast.error(err?.message ?? 'Invalid discount code')
+        },
+      }
+    )
   };
 
   const handleRemoveDiscount = () => {
@@ -56,8 +62,6 @@ function RouteComponent() {
   };
 
   const handleCheckout = () => {
-    // Placeholder: no orders API implemented — show a toast and log the cart.
-    // Keep the old behavior for non-dialog flows (not used now).
     toast.success('Checkout not implemented in this demo.');
     // In a real app: call your orders.create mutation or redirect to payment.
     console.log('Checkout items:', items);
@@ -70,12 +74,22 @@ function RouteComponent() {
 
   const handlePlaceOrder = () => {
     // Call server to create order from cart; server clears the cart.
-    orderCreate.mutate(undefined, {
-      onSuccess: () => {
-        toast.success('Order placed successfully');
-        setOrderDialogOpen(false);
+    const payload = appliedCode ? { discountCode: appliedCode } : undefined
+    orderCreate.mutate(payload, {
+      onSuccess: (data: any) => {
+        // If server returned a generatedCoupon, show it in the dialog and keep it open
+        if (data?.generatedCoupon) {
+          setGeneratedCoupon(data.generatedCoupon)
+          setOrderDialogOpen(true)
+          toast.success('Order placed — you earned a coupon!')
+          // do not refetch the cart yet (so UI still shows items while user views coupon)
+          return
+        }
+        // no coupon generated: refresh cart and navigate to orders
         void cartQuery.refetch();
         void queryClient.invalidateQueries(trpc.cart.fetchItemsCount.queryOptions().queryKey as any);
+        toast.success('Order placed successfully');
+        setOrderDialogOpen(false);
         navigate({ to: '/app/orders' });
       },
       onError: (err: any) => {
@@ -112,7 +126,6 @@ function RouteComponent() {
                 <Button variant='destructive' size='sm' onClick={handleRemoveDiscount}>Remove</Button>
               ) : null}
             </div>
-
             <ul className='space-y-2'>
               {items.map((it: any) => (
                 <li key={it.cartItemId} className='flex justify-between'>
@@ -156,32 +169,68 @@ function RouteComponent() {
                     <Button>Checkout</Button>
                   </DialogTrigger>
                   <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Select payment method</DialogTitle>
-                      <DialogDescription>
-                        Choose how you'd like to pay for your order.
-                      </DialogDescription>
-                    </DialogHeader>
+                    {generatedCoupon ? (
+                      <>
+                        <DialogHeader>
+                          <DialogTitle>Congratulations — here is your coupon</DialogTitle>
+                          <DialogDescription>
+                            We created a one-time use coupon for your next order. Copy it or go to your orders to view details.
+                          </DialogDescription>
+                        </DialogHeader>
 
-                    <div className='mt-4 space-y-3'>
-                      <label className='flex items-center gap-2'>
-                        <input type='radio' name='payment' checked={paymentMethod === 'card'} onChange={() => setPaymentMethod('card')} />
-                        <span>Credit / Debit Card</span>
-                      </label>
-                      <label className='flex items-center gap-2'>
-                        <input type='radio' name='payment' checked={paymentMethod === 'paypal'} onChange={() => setPaymentMethod('paypal')} />
-                        <span>PayPal</span>
-                      </label>
-                      <label className='flex items-center gap-2'>
-                        <input type='radio' name='payment' checked={paymentMethod === 'apple'} onChange={() => setPaymentMethod('apple')} />
-                        <span>Apple Pay</span>
-                      </label>
-                    </div>
+                        <div className='p-3 mb-4 border rounded bg-muted'>
+                          <div className='flex items-center justify-between'>
+                            <div>
+                              <div className='text-sm text-muted-foreground'>You earned a coupon!</div>
+                              <div className='font-medium'>Code: <span className='uppercase'>{generatedCoupon.code}</span></div>
+                              <div className='text-xs text-muted-foreground'>Value: {generatedCoupon.percent}%</div>
+                            </div>
+                            <div className='flex items-center gap-2'>
+                              <Button size='sm' onClick={() => { void navigator.clipboard.writeText(generatedCoupon.code); toast.success('Copied code') }}>Copy</Button>
+                              <Button variant='secondary' size='sm' onClick={() => {
+                                // clear coupon state, refresh cart state, then navigate to orders
+                                setGeneratedCoupon(null);
+                                setOrderDialogOpen(false);
+                                void cartQuery.refetch();
+                                void queryClient.invalidateQueries(trpc.cart.fetchItemsCount.queryOptions().queryKey as any);
+                                navigate({ to: '/app/orders' });
+                              }}>View orders</Button>
+                            </div>
+                          </div>
+                        </div>
+                      </>
+                    ) : (
+                      <DialogHeader>
+                        <DialogTitle>Select payment method</DialogTitle>
+                        <DialogDescription>
+                          Choose how you'd like to pay for your order.
+                        </DialogDescription>
+                      </DialogHeader>
+                    )}
 
-                    <div className='mt-6 flex justify-end gap-2'>
-                      <Button variant='ghost' onClick={() => setOrderDialogOpen(false)}>Cancel</Button>
-                      <Button onClick={handlePlaceOrder}>Place order</Button>
-                    </div>
+                    {!generatedCoupon ? (
+                      <>
+                        <div className='mt-4 space-y-3'>
+                          <label className='flex items-center gap-2'>
+                            <input type='radio' name='payment' checked={paymentMethod === 'card'} onChange={() => setPaymentMethod('card')} />
+                            <span>Credit / Debit Card</span>
+                          </label>
+                          <label className='flex items-center gap-2'>
+                            <input type='radio' name='payment' checked={paymentMethod === 'paypal'} onChange={() => setPaymentMethod('paypal')} />
+                            <span>PayPal</span>
+                          </label>
+                          <label className='flex items-center gap-2'>
+                            <input type='radio' name='payment' checked={paymentMethod === 'apple'} onChange={() => setPaymentMethod('apple')} />
+                            <span>Apple Pay</span>
+                          </label>
+                        </div>
+
+                        <div className='mt-6 flex justify-end gap-2'>
+                          <Button variant='ghost' onClick={() => setOrderDialogOpen(false)}>Cancel</Button>
+                          <Button onClick={handlePlaceOrder}>Place order</Button>
+                        </div>
+                      </>
+                    ) : null}
                   </DialogContent>
                 </Dialog>
               </div>
