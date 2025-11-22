@@ -1,10 +1,14 @@
+import z from 'zod'
 import { router, protectedProcedure } from '../index'
 import { db } from '@nth-discount-store/db'
 import { orders, orderItems } from '@nth-discount-store/db/schema/orders'
 import { coupons } from '@nth-discount-store/db/schema/coupons'
 export const adminRouter = router({
   // Returns basic sales metrics for admin dashboard
-  getMetrics: protectedProcedure.query(async ({ ctx }) => {
+  getMetrics: protectedProcedure
+    .meta({ openapi: { method: 'GET', path: '/admin/metrics' } })
+    .output(z.object({ itemsSold: z.number(), totalRevenue: z.number(), totalDiscounts: z.number(), coupons: z.array(z.object({ code: z.string(), percent: z.number(), used: z.boolean(), redeemedOrderId: z.number().nullable().optional() })) }))
+    .query(async ({ ctx }) => {
   // require admin (session.user.admin may be added by auth plugin)
   if (!(ctx.session.user as any)?.admin) throw new Error('Unauthorized')
 

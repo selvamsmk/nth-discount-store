@@ -13,7 +13,9 @@ export const ordersRouter = router({
   // Create an order from the current user's cart and clear the cart.
   // Accepts optional { discountCode } to apply a single-use coupon.
   create: protectedProcedure
+    .meta({ openapi: { method: 'POST', path: '/orders' } })
     .input(z.object({ discountCode: z.string().optional() }).optional())
+    .output(z.object({ id: z.number(), userId: z.string(), totalCents: z.number(), discountCents: z.number(), createdAt: z.string(), items: z.array(z.object({ id: z.number(), itemId: z.number(), price: z.number(), quantity: z.number(), name: z.string().optional() })), generatedCoupon: z.any().nullable().optional() }))
     .mutation(async ({ input, ctx }) => {
     const userId = ctx.session.user.id
 
@@ -107,25 +109,36 @@ export const ordersRouter = router({
         .leftJoin(items, eq(orderItems.itemId, items.id))
         .where(eq(orderItems.orderId, orderId))
 
-      return { id: orderId, userId: String(userId), totalCents, discountCents, createdAt: new Date(), items: oi, generatedCoupon }
+      // normalize dates to ISO strings for OpenAPI / JSON
+      const createdAtIso = new Date().toISOString()
+      const normalizedGeneratedCoupon = generatedCoupon
+        ? { ...generatedCoupon, createdAt: generatedCoupon.createdAt ? new Date(generatedCoupon.createdAt as any).toISOString() : undefined }
+        : null
+
+      const normalizedItems = oi.map((i: any) => ({ ...i, name: i.name ?? undefined }))
+      return { id: orderId, userId: String(userId), totalCents, discountCents, createdAt: createdAtIso, items: normalizedItems, generatedCoupon: normalizedGeneratedCoupon }
     })
   }),
 
   // Return orders for current user with their items
-  myOrders: protectedProcedure.query(async ({ ctx }) => {
-    const userId = ctx.session.user.id
-    const orderRows = await db.select().from(orders).where(eq(orders.userId, String(userId))).orderBy(desc(orders.id))
-    const results = [];
-    for (const o of orderRows) {
-      const oi = await db
-        .select({ id: orderItems.id, itemId: orderItems.itemId, price: orderItems.price, quantity: orderItems.quantity, name: items.name })
-        .from(orderItems)
-        .leftJoin(items, eq(orderItems.itemId, items.id))
-        .where(eq(orderItems.orderId, o.id))
-      results.push({ ...o, items: oi })
-    }
-    return results
-  }),
+  myOrders: protectedProcedure
+    .meta({ openapi: { method: 'GET', path: '/orders' } })
+    .output(z.array(z.object({ id: z.number(), userId: z.string(), totalCents: z.number(), discountCents: z.number(), createdAt: z.string(), items: z.array(z.object({ id: z.number(), itemId: z.number(), price: z.number(), quantity: z.number(), name: z.string().optional() })) })))
+    .query(async ({ ctx }) => {
+      const userId = ctx.session.user.id
+      const orderRows = await db.select().from(orders).where(eq(orders.userId, String(userId))).orderBy(desc(orders.id))
+      const results = [] as any[];
+      for (const o of orderRows) {
+        const oi = await db
+          .select({ id: orderItems.id, itemId: orderItems.itemId, price: orderItems.price, quantity: orderItems.quantity, name: items.name })
+          .from(orderItems)
+          .leftJoin(items, eq(orderItems.itemId, items.id))
+          .where(eq(orderItems.orderId, o.id))
+        const normalizedItems = oi.map((i: any) => ({ ...i, name: i.name ?? undefined }))
+        results.push({ ...o, createdAt: new Date((o.createdAt)).toISOString(), items: normalizedItems })
+      }
+      return results
+    }),
 })
 
 export default ordersRouter

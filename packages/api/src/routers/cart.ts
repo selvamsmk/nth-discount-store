@@ -6,7 +6,21 @@ import { eq, and } from 'drizzle-orm'
 import { db } from '@nth-discount-store/db'
 
 export const cartRouter = router({
-  fetchItemsInCart: protectedProcedure.query(async ({ ctx }) => {
+  fetchItemsInCart: protectedProcedure
+    .meta({ openapi: { method: 'GET', path: '/cart/items' } })
+    .output(z.array(
+      z.object({
+        cartItemId: z.number(),
+        itemId: z.number(),
+        name: z.string().nullable().optional(),
+        description: z.string().nullable().optional(),
+        price: z.number().nullable().optional(),
+        sku: z.string().nullable().optional(),
+        quantity: z.number().nullable().optional(),
+        addedAt: z.string().nullable().optional(),
+      })
+    ))
+    .query(async ({ ctx }) => {
       const userId = ctx.session.user.id
       const cartRows = await db.select().from(carts).where(eq(carts.userId, String(userId))).limit(1)
       const cart = cartRows[0]
@@ -27,11 +41,13 @@ export const cartRouter = router({
         .leftJoin(items, eq(cartItems.itemId, items.id))
         .where(eq(cartItems.cartId, cart.id))
 
-      return rows
+      return rows.map((r: any) => ({ ...r, addedAt: r.addedAt ? new Date(r.addedAt as unknown as number).toISOString() : null }))
     }),
 
   addToCart: protectedProcedure
+    .meta({ openapi: { method: 'POST', path: '/cart/add' } })
     .input(z.object({ itemId: z.number(), quantity: z.number().optional() }))
+    .output(z.object({ success: z.boolean() }))
     .mutation(async ({ input, ctx }) => {
       const qty = input.quantity ?? 1
       const userId = ctx.session.user.id
@@ -63,7 +79,9 @@ export const cartRouter = router({
     }),
 
   removeFromCart: protectedProcedure
+    .meta({ openapi: { method: 'POST', path: '/cart/remove' } })
     .input(z.object({ itemId: z.number(), quantity: z.number().optional() }))
+    .output(z.object({ success: z.boolean(), reason: z.string().optional() }))
     .mutation(async ({ input, ctx }) => {
       const qty = input.quantity ?? null
       const userId = ctx.session.user.id
@@ -88,16 +106,19 @@ export const cartRouter = router({
 
       return { success: true }
     }),
-  fetchItemsCount: protectedProcedure.query(async ({ ctx }) => {
-    const userId = ctx.session.user.id
-    const cartRows = await db.select().from(carts).where(eq(carts.userId, String(userId))).limit(1)
-    const cart = cartRows[0]
-    if (!cart) return { count: 0 }
+  fetchItemsCount: protectedProcedure
+    .meta({ openapi: { method: 'GET', path: '/cart/count' } })
+    .output(z.object({ count: z.number() }))
+    .query(async ({ ctx }) => {
+      const userId = ctx.session.user.id
+      const cartRows = await db.select().from(carts).where(eq(carts.userId, String(userId))).limit(1)
+      const cart = cartRows[0]
+      if (!cart) return { count: 0 }
 
-    const rows = await db.select({ quantity: cartItems.quantity }).from(cartItems).where(eq(cartItems.cartId, cart.id))
-    const count = rows.reduce((sum, r) => sum + (r.quantity ?? 0), 0)
-    return { count }
-  }),
+      const rows = await db.select({ quantity: cartItems.quantity }).from(cartItems).where(eq(cartItems.cartId, cart.id))
+      const count = rows.reduce((sum, r) => sum + (r.quantity ?? 0), 0)
+      return { count }
+    }),
 })
 
 export default cartRouter

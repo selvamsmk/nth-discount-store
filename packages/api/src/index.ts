@@ -1,11 +1,12 @@
 import { initTRPC, TRPCError } from "@trpc/server";
+import type { OpenApiMeta } from 'trpc-to-openapi'
 import type { Context } from "./context";
 
 // Re-export DB types for consumers so other packages can import types from @nth-discount-store/api
 // Import the types directly from the DB package schema path to avoid relying on DB package root re-exports
 import type { Item, NewItem } from "@nth-discount-store/db";
 
-export const t = initTRPC.context<Context>().create();
+export const t = initTRPC.meta<OpenApiMeta>().context<Context>().create();
 
 export const router = t.router;
 

@@ -23,7 +23,7 @@ type OrderRow = {
   itemCount: number
   items: {
     id: number;
-    name: string | null;
+    name?: string | null;
     itemId: number;
     price: number;
     quantity: number;
