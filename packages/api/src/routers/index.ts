@@ -4,6 +4,7 @@ import { itemsRouter } from "./items";
 import { settingsRouter } from "./settings";
 import { ordersRouter } from "./orders";
 import { couponsRouter } from "./coupons";
+import { adminRouter } from "./admin";
 
 export const appRouter = router({
 	healthCheck: publicProcedure.query(() => {
@@ -18,6 +19,7 @@ export const appRouter = router({
 	items: itemsRouter,
 	settings: settingsRouter,
 	coupons: couponsRouter,
+	admin: adminRouter,
 	orders: ordersRouter,
 	cart: cartRouter,
 });
