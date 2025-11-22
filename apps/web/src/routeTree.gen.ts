@@ -13,6 +13,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as AppRouteRouteImport } from './routes/app/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppStoreRouteImport } from './routes/app/store'
+import { Route as AppSettingsRouteImport } from './routes/app/settings'
 import { Route as AppOrdersRouteImport } from './routes/app/orders'
 import { Route as AppCartRouteImport } from './routes/app/cart'
 
@@ -36,6 +37,11 @@ const AppStoreRoute = AppStoreRouteImport.update({
   path: '/store',
   getParentRoute: () => AppRouteRoute,
 } as any)
+const AppSettingsRoute = AppSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AppRouteRoute,
+} as any)
 const AppOrdersRoute = AppOrdersRouteImport.update({
   id: '/orders',
   path: '/orders',
@@ -53,6 +59,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/app/cart': typeof AppCartRoute
   '/app/orders': typeof AppOrdersRoute
+  '/app/settings': typeof AppSettingsRoute
   '/app/store': typeof AppStoreRoute
 }
 export interface FileRoutesByTo {
@@ -61,6 +68,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/app/cart': typeof AppCartRoute
   '/app/orders': typeof AppOrdersRoute
+  '/app/settings': typeof AppSettingsRoute
   '/app/store': typeof AppStoreRoute
 }
 export interface FileRoutesById {
@@ -70,6 +78,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/app/cart': typeof AppCartRoute
   '/app/orders': typeof AppOrdersRoute
+  '/app/settings': typeof AppSettingsRoute
   '/app/store': typeof AppStoreRoute
 }
 export interface FileRouteTypes {
@@ -80,9 +89,17 @@ export interface FileRouteTypes {
     | '/login'
     | '/app/cart'
     | '/app/orders'
+    | '/app/settings'
     | '/app/store'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/app' | '/login' | '/app/cart' | '/app/orders' | '/app/store'
+  to:
+    | '/'
+    | '/app'
+    | '/login'
+    | '/app/cart'
+    | '/app/orders'
+    | '/app/settings'
+    | '/app/store'
   id:
     | '__root__'
     | '/'
@@ -90,6 +107,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/app/cart'
     | '/app/orders'
+    | '/app/settings'
     | '/app/store'
   fileRoutesById: FileRoutesById
 }
@@ -129,6 +147,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppStoreRouteImport
       parentRoute: typeof AppRouteRoute
     }
+    '/app/settings': {
+      id: '/app/settings'
+      path: '/settings'
+      fullPath: '/app/settings'
+      preLoaderRoute: typeof AppSettingsRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
     '/app/orders': {
       id: '/app/orders'
       path: '/orders'
@@ -149,12 +174,14 @@ declare module '@tanstack/react-router' {
 interface AppRouteRouteChildren {
   AppCartRoute: typeof AppCartRoute
   AppOrdersRoute: typeof AppOrdersRoute
+  AppSettingsRoute: typeof AppSettingsRoute
   AppStoreRoute: typeof AppStoreRoute
 }
 
 const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppCartRoute: AppCartRoute,
   AppOrdersRoute: AppOrdersRoute,
+  AppSettingsRoute: AppSettingsRoute,
   AppStoreRoute: AppStoreRoute,
 }
 

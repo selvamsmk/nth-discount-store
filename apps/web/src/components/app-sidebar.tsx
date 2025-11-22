@@ -1,4 +1,4 @@
-import { Store, ShoppingCart, LogOut, ListOrdered } from "lucide-react"
+import { Store, ShoppingCart, LogOut, ListOrdered, Settings } from "lucide-react"
 import {
   Sidebar,
   SidebarContent,
@@ -14,6 +14,7 @@ import { Link, useNavigate } from "@tanstack/react-router"
 import { authClient } from "@/lib/auth-client"
 import { useQuery } from "@tanstack/react-query"
 import { trpc } from "@/utils/trpc"
+import { Skeleton } from "./ui/skeleton"
 
 // Menu items.
 const items = [
@@ -36,6 +37,7 @@ const items = [
 
 export function AppSidebar() {
     const navigate = useNavigate();
+    const { data: session, isPending } = authClient.useSession();
     const itemsCount = useQuery(trpc.cart.fetchItemsCount.queryOptions())
     const onSignOut = () => {
         authClient.signOut({
@@ -79,6 +81,24 @@ export function AppSidebar() {
       </SidebarContent>
       <SidebarFooter>
         <SidebarMenu>
+            {
+                isPending && (
+                <Skeleton/>
+                )
+            }
+            {
+                session?.user?.admin && (
+                <SidebarMenuItem key={"settings"}>
+                    <SidebarMenuButton asChild>
+                    <Link to={"/app/settings"} className="flex items-center gap-2">
+                      <Settings />
+                      <span>Settings</span>
+                      </Link>
+                    </SidebarMenuButton>
+                </SidebarMenuItem>
+                )
+            }
+              
             <SidebarMenuItem key={"sign-out"}>
                 <SidebarMenuButton onClick={onSignOut}>
                     <LogOut/>

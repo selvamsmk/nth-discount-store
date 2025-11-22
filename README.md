@@ -76,6 +76,15 @@ bun run dev
 Open [http://localhost:3001](http://localhost:3001) in your browser to see the web application.
 The API is running at [http://localhost:3000](http://localhost:3000).
 
+Deployed demo
+-----------
+
+A deployed instance of this project is available for preview at:
+
+https://nth-discount-store-production.up.railway.app/
+
+Use this URL to inspect the running demo and verify behavior without running locally.
+
 ## Project Structure
 
 ```
