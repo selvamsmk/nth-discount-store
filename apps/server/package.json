@@ -7,7 +7,9 @@
     "check-types": "tsc -b",
     "compile": "bun build --compile --minify --sourcemap --bytecode ./src/index.ts --outfile server",
     "dev": "bun run --inspect=9229 --hot src/index.ts",
-    "start": "bun run dist/index.js"
+    "start": "bun run dist/index.js",
+    "generate:openapi": "bun ./src/scripts/generate-openapi.ts",
+    "generate:redoc": "bunx redoc-cli build-docs openapi.json -o docs.html"
   },
   "dependencies": {
     "hono": "catalog:",
@@ -21,9 +23,10 @@
     "@nth-discount-store/db": "workspace:*"
   },
   "devDependencies": {
-    "typescript": "catalog:",
+    "@nth-discount-store/config": "workspace:*",
     "@types/bun": "^1.2.6",
     "tsdown": "catalog:",
-    "@nth-discount-store/config": "workspace:*"
+    "typescript": "catalog:",
+    "trpc-to-openapi": "^3.1.0"
   }
 }

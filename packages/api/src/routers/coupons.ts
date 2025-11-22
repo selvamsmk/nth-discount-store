@@ -8,7 +8,9 @@ import { TRPCError } from '@trpc/server'
 export const couponsRouter = router({
   // Validate a coupon code for the current user and return its percent if valid.
   validate: protectedProcedure
+    .meta({ openapi: { method: 'POST', path: '/coupons/validate' } })
     .input(z.object({ code: z.string() }))
+    .output(z.object({ percent: z.number() }))
     .mutation(async ({ input, ctx }) => {
       const code = input.code.trim()
       const rows = await db.select().from(coupons).where(eq(coupons.code, code)).limit(1)

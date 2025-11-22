@@ -61,10 +61,12 @@ const ItemList = (props: Props) => {
       {displayedItems.map(item => {
         const isInCart = inCartIds.has(item.id)
         const qty = cartQuantityMap.get(item.id);
+        const normalizedItem = { ...item, description: item.description ?? null, sku: item.sku ?? null }
+
         return (
           <li key={item.id} className='w-full'>
             <StoreItem
-              item={item}
+              item={normalizedItem}
               isInCart={isInCart}
               quantity={qty ?? 1}
               onAdd={handleAdd}

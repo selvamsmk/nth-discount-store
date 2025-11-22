@@ -5,7 +5,10 @@ import { db } from '@nth-discount-store/db';
 
 export const settingsRouter = router({
   // Fetch the Nth-order value. Returns { nValue: number | null }
-  getNth: publicProcedure.query(async () => {
+  getNth: publicProcedure
+    .meta({ openapi: { method: 'GET', path: '/settings/n' } })
+    .output(z.object({ nValue: z.number().nullable() }))
+    .query(async () => {
     const rows = await db.select().from(settings).limit(1)
     const row = rows[0]
     // Prefer the explicit integer column `n_value` (mapped to `nValue`). If it's
@@ -20,7 +23,9 @@ export const settingsRouter = router({
 
   // Update the Nth-order value. Admin-only.
   updateNth: protectedProcedure
+    .meta({ openapi: { method: 'PUT', path: '/settings/n' } })
     .input(z.object({ nValue: z.number().int().min(1) }))
+    .output(z.object({ success: z.boolean() }))
     .mutation(async ({ input }) => {
       const key = 'n_value';
       const existingRows = await db.select().from(settings).limit(1)

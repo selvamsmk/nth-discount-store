@@ -16,6 +16,7 @@
   },
   "devDependencies": {
     "tsdown": "catalog:",
+    "trpc-to-openapi": "^3.1.0",
     "@nth-discount-store/config": "workspace:*"
   },
   "peerDependencies": {
